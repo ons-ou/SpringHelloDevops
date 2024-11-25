@@ -111,3 +111,107 @@ resource "kubernetes_manifest" "argocd_repo_server_metrics" {
   }
 }
 
+resource "kubernetes_manifest" "argocd_applicationset_controller_metrics" {
+  manifest = {
+    apiVersion = "monitoring.coreos.com/v1"
+    kind       = "ServiceMonitor"
+    metadata = {
+      name      = "argocd-applicationset-controller-metrics"
+      namespace = "argocd-app"
+      labels = {
+        release = "prometheus-operator"
+      }
+    }
+    spec = {
+      selector = {
+        matchLabels = {
+          "app.kubernetes.io/name" = "argocd-applicationset-controller"
+        }
+      }
+      endpoints = [
+        {
+          port = "metrics"
+        }
+      ]
+    }
+  }
+}
+
+resource "kubernetes_manifest" "argocd_dex_server_metrics" {
+  manifest = {
+    apiVersion = "monitoring.coreos.com/v1"
+    kind       = "ServiceMonitor"
+    metadata = {
+      name      = "argocd-dex-server"
+      namespace = "argocd-app"
+      labels = {
+        release = "prometheus-operator"
+      }
+    }
+    spec = {
+      selector = {
+        matchLabels = {
+          "app.kubernetes.io/name" = "argocd-dex-server"
+        }
+      }
+      endpoints = [
+        {
+          port = "metrics"
+        }
+      ]
+    }
+  }
+}
+
+resource "kubernetes_manifest" "argocd_redis_haproxy_metrics" {
+  manifest = {
+    apiVersion = "monitoring.coreos.com/v1"
+    kind       = "ServiceMonitor"
+    metadata = {
+      name      = "argocd-redis-haproxy-metrics"
+      namespace = "argocd-app"
+      labels = {
+        release = "prometheus-operator"
+      }
+    }
+    spec = {
+      selector = {
+        matchLabels = {
+          "app.kubernetes.io/name" = "argocd-redis-ha-haproxy"
+        }
+      }
+      endpoints = [
+        {
+          port = "http-exporter-port"
+        }
+      ]
+    }
+  }
+}
+
+resource "kubernetes_manifest" "argocd_notifications_controller_metrics" {
+  manifest = {
+    apiVersion = "monitoring.coreos.com/v1"
+    kind       = "ServiceMonitor"
+    metadata = {
+      name      = "argocd-notifications-controller"
+      namespace = "argocd-app"
+      labels = {
+        release = "prometheus-operator"
+      }
+    }
+    spec = {
+      selector = {
+        matchLabels = {
+          "app.kubernetes.io/name" = "argocd-notifications-controller-metrics"
+        }
+      }
+      endpoints = [
+        {
+          port = "metrics"
+        }
+      ]
+    }
+  }
+}
+
