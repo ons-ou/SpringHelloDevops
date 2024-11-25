@@ -4,7 +4,6 @@ resource "kubernetes_namespace" "springboot_app" {
     name = "springboot-app"
   }
 }
-
 # ArgoCD Application for the Spring Boot app
 resource "kubernetes_manifest" "argocd_application" {
   manifest = {
