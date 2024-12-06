@@ -36,3 +36,14 @@ jobs:
         terraform init
         terraform apply -auto-approve 
       working-directory: terraform
+
+    - name: Commit and Push Terraform State
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        cd terraform
+        git add *.tfstate*
+        git commit -m "Update Terraform state"
+        git push
+      env:
+        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
