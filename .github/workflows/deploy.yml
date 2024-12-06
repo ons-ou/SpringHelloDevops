@@ -11,32 +11,52 @@ on:
       - "terraform/**"
 
 jobs:
-  build:
+  # Job 1: Build and Push Docker Image
+  build-docker:
     runs-on: self-hosted
-
     steps:
     # Step 1: Checkout the repository
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # Step 2: Build Docker Image
+    # Step 2: Log in to DockerHub
     - name: Log in to DockerHub
       run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
+    # Step 3: Build and Push Docker Image
     - name: Build and Push Docker Image
       run: |
         IMAGE_NAME=docker.io/${{ secrets.DOCKER_USERNAME }}/springboot-app:latest
         docker build -t $IMAGE_NAME .
         docker push $IMAGE_NAME
 
-    # Step 3: Run Terraform using locally installed version
+  # Job 2: Run Terraform
+  terraform:
+    runs-on: self-hosted
+    needs: build-docker
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Run Terraform
     - name: Run Terraform
       run: |
         terraform --version  
         terraform init
-        terraform apply -auto-approve 
+        terraform apply -auto-approve
       working-directory: terraform
 
+  # Job 3: Push Terraform State Back to GitHub
+  push-terraform-state:
+    runs-on: self-hosted
+    needs: terraform
+    steps:
+    # Step 1: Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Step 2: Commit and Push Terraform State
     - name: Commit and Push Terraform State
       run: |
         git config --global user.name "GitHub Actions"
@@ -46,4 +66,4 @@ jobs:
         git commit -m "Update Terraform state"
         git push
       env:
-        GITHUB_TOKEN: ${{ secrets.TOKEN_GITHUB }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
